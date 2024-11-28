@@ -9,12 +9,17 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.db_config import get_async_session
 from model.user_model import UserModel
+from schema.job_application_schema import JobApplicationCreate
 
 job_application_router = APIRouter()
 
 
 @job_application_router.post("/apply")
-async def apply(job_appication: JobApplicationCreate, session: AsyncSession = Depends(get_async_session), user: UserModel = Depends()):
+async def apply(
+    job_appication: JobApplicationCreate,
+    session: AsyncSession = Depends(get_async_session),
+    user: UserModel = Depends(),
+):
     return True
 
 
@@ -29,5 +34,5 @@ async def cancel():
 
 
 @job_application_router.post("/get/my_apply")
-async def my_apply():
+async def get_my_apply():
     pass
