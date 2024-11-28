@@ -11,3 +11,7 @@ class JobPostCreate(JobPost):
 
 class JobPostResponse(JobPost):
     pass
+
+
+class JobPostPageRequest(BaseModel):
+    pass
