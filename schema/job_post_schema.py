@@ -1,4 +1,10 @@
+from typing import List, Optional
 from pydantic import BaseModel
+
+from enums.educatrion_level import EducationLevel
+from enums.employ_type import EmploymentType
+from enums.location_code import SecondLocationCode
+from enums.salary_type import SalaryType
 
 
 class JobPost(BaseModel):
@@ -14,4 +20,9 @@ class JobPostResponse(JobPost):
 
 
 class JobPostPageRequest(BaseModel):
-    pass
+    key_word: Optional[str] = None
+    page: int = 0
+    education_level: Optional[EducationLevel] = None
+    empoly_type: Optional[EmploymentType] = None
+    region: List[SecondLocationCode]
+    salary: Optional[SalaryType] = None

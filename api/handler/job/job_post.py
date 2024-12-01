@@ -1,24 +1,14 @@
-# 채용 공고 관련 API
-# 채용 공고 조회 API
-# (채용 공고 검색 API
-# 채용 공고 필터링 API
-# 채용 공고 정렬 API)
-# 채용 공고 등록 API
-# 채용 공고 수정 API
-
-
 from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.db_config import get_async_session
-from model.user_model import UserModel
 from schema.job_post_schema import JobPostCreate, JobPostPageRequest, JobPostResponse
 from service.job_service import JobService
 
 job_post_router = APIRouter()
 
 
-@job_post_router.get("/get", response_model=List(JobPostResponse))
+@job_post_router.get("/get", response_model=List[JobPostResponse])
 async def get_job_post_page(
     jop_post_page_request: JobPostPageRequest,
     session: AsyncSession = Depends(get_async_session),
