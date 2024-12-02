@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from enums.educatrion_level import EducationLevel
 from enums.employ_type import EmploymentType
@@ -8,6 +8,7 @@ from enums.salary_type import SalaryType
 
 
 class JobPost(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     pass
 
 
