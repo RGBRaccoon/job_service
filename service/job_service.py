@@ -60,10 +60,10 @@ class JobService(BaseService):
         res = await JobRepository(session=self.session).job_apply(job_appication_create=job_appication_create)
         return res
 
-    async def job_application_cancel(self, application_id: str):
-        res = await JobRepository(session=self.session).job_application_cancel(application_id=application_id)
+    async def job_application_cancel(self, user_id: UUID, application_id: str):
+        res = await JobRepository(session=self.session).job_application_cancel(user_id=user_id, application_id=application_id)
         return res
 
     async def get_my_application(self, user_id: UUID) -> List[JobApplication]:
         res = await JobRepository(session=self.session).get_my_application(user_id=user_id)
-        return res
+        return [JobApplication.model_validate(i) for i in res]

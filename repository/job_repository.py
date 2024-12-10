@@ -63,9 +63,11 @@ class JobRepository(BaseRepository):
 
         pass
 
-    async def job_application_cancel(self, application_id: str):
+    async def job_application_cancel(self, user_id: UUID, application_id: str):
+        # 실제 지원자가 자신의 계정으로 삭제하는것을 위해 user_id로 필터링
         stmt = (
             update(JobApplicationModel)
+            .where(JobApplicationModel.user_id == user_id)
             .where(JobApplicationModel.application_id == application_id)
             .values(activate=False)
             .returning(JobApplicationModel)
@@ -74,7 +76,7 @@ class JobRepository(BaseRepository):
         res = res.scalars().all()
         return res
 
-    async def get_my_application(self, user_id: UUID) -> List[JobApplication]:
+    async def get_my_application(self, user_id: UUID) -> List[JobApplicationModel]:
         stmt = select(UserModel).where(UserModel.id == user_id).join(UserModel.job_applicaion)
         res = await self.session.execute(stmt)
         res = res.scalars().all()

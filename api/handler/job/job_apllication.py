@@ -22,18 +22,14 @@ async def apply(
     return res
 
 
-# @job_application_router.post("/bookmark")
-# async def bookmark():
-#     pass
-
-
 @job_application_router.post("/cancel", summary="채용 지원 취소")
 async def cancel(
     application_id: str,
     session: AsyncSession = Depends(get_async_session),
     user: UserModel = Depends(),
 ):
-    res = await JobService(session=session).job_application_cancel(application_id=application_id)
+
+    res = await JobService(session=session).job_application_cancel(user_id=user.id, application_id=application_id)
     await session.commit()
     return res
 
