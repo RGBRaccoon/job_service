@@ -1,16 +1,18 @@
+from typing import List
+from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.db_config import get_async_session
 from model.user_model import UserModel
-from schema.job_post_schema import JobPostCreate, JobPostListResponse, JobPostPageRequest, JobPostResponse
+from schema.job_post_schema import JobPostCreate, JobPostListResponse, JobPostPageRequest, JobPostResponse, JobPostUpdate
 from service.job_service import JobService
 from api.handler.user.user_manager import current_active_user
 
 job_post_router = APIRouter()
 
 
-@job_post_router.get("/page", summary="채용 공고 검색. 필터링, 키워드 정렬.", response_model=JobPostListResponse)
+@job_post_router.post("/page", summary="채용 공고 검색. 필터링, 키워드 정렬.", response_model=JobPostListResponse)
 async def get_job_post_page(
     jop_post_page_request: JobPostPageRequest,
     session: AsyncSession = Depends(get_async_session),
@@ -38,7 +40,7 @@ async def create_job_post(
 @job_post_router.post("/update", summary="채용공고 수정", response_model=JobPostResponse)
 async def update_job_post(
     post_id: str,
-    job_post_create: JobPostCreate,
+    job_post_create: JobPostUpdate,
     session: AsyncSession = Depends(get_async_session),
 ):
     res = await JobService(session=session).update_job_post(post_id=post_id, job_post_create=job_post_create)
@@ -57,9 +59,9 @@ async def delete_job_post(
     # return raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
 
-@job_post_router.post("/bookmark", summary="채용공고 찜", response_model=JobPostResponse)
+@job_post_router.post("/bookmark", summary="채용공고 찜", response_model=List[UUID])
 async def bookmark_job_post(
-    post_id: str,
+    post_id: UUID,
     session: AsyncSession = Depends(get_async_session),
     user: UserModel = Depends(current_active_user),
 ):
@@ -68,7 +70,7 @@ async def bookmark_job_post(
     return res
 
 
-@job_post_router.post("/get/my_bookmark", summary="내가 북마크한 채용공고 조회", response_model=JobPostResponse)
+@job_post_router.post("/get/my_bookmark", summary="내가 북마크한 채용공고 조회", response_model=List[JobPostResponse])
 async def get_bookmark_job_post(
     session: AsyncSession = Depends(get_async_session),
     user: UserModel = Depends(current_active_user),

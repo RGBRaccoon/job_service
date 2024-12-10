@@ -1,4 +1,5 @@
 from typing import List, Optional
+from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
 from enums.close_type import CloseType
@@ -35,15 +36,36 @@ class JobPost(BaseModel):
 
 class JobPostCreate(JobPost):
     model_config = ConfigDict(from_attributes=True)
-    pass
+
+
+class JobPostUpdate(BaseModel):
+    url: Optional[str] = None
+    title: Optional[str] = None
+    posting_timestamp: Optional[int] = None
+    modification_timestamp: Optional[int] = None
+    opening_timestamp: Optional[int] = None
+    expiration_timestamp: Optional[int] = None
+    close_type: Optional[CloseType] = None
+    company: Optional[Company] = None
+    location: Optional[SecondLocationCode] = None
+    job_type: Optional[JobType] = None
+    job_code: Optional[int] = None
+    experience_level: Optional[ExperienceLevel] = None
+    salary: Optional[SalaryType] = None
+    experience_min: Optional[int] = None
+    experience_max: Optional[int] = None
+    education_level: Optional[EducationLevel] = None
+    read_cnt: Optional[int] = None
+    apply_cnt: Optional[int] = None
+    model_config = ConfigDict(from_attributes=True)
 
 
 class JobPostResponse(JobPost):
-    pass
+    model_config = ConfigDict(from_attributes=True)
 
 
 class JobPostListData(BaseModel):
-    post_id: str
+    post_id: UUID
     url: str
     title: str
     expiration_timestamp: int
@@ -61,6 +83,6 @@ class JobPostPageRequest(BaseModel):
     key_word: Optional[str] = None
     page: int = 0
     education_level: Optional[EducationLevel] = None
-    empoly_type: Optional[EmploymentType] = None
+    employ_type: Optional[EmploymentType] = None
     region: List[SecondLocationCode]
     salary: Optional[SalaryType] = None

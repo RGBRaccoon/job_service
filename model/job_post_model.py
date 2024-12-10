@@ -1,8 +1,9 @@
 import uuid
-from sqlalchemy import ForeignKey, String, Boolean, JSON, Integer, UUID
+from sqlalchemy import String, Boolean, JSON, Integer, UUID
 from config.db_config import Base
 from enums.close_type import CloseType
 from enums.educatrion_level import EducationLevel
+from enums.employ_type import EmploymentType
 from enums.job_type import JobType
 from enums.location_code import SecondLocationCode
 from enums.salary_type import SalaryType
@@ -27,6 +28,7 @@ class JobPostModel(Base):
     location: Mapped[SecondLocationCode] = mapped_column(Integer)
     job_type: Mapped[JobType] = mapped_column(Integer)
     job_code: Mapped[int] = mapped_column(Integer)
+    employ_type: Mapped[EmploymentType] = mapped_column(Integer)
     experience_level: Mapped[ExperienceLevel] = mapped_column(JSON)
     salary: Mapped[SalaryType] = mapped_column(Integer)
     experience_min: Mapped[int] = mapped_column(Integer, nullable=True)

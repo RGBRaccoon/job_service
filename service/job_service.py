@@ -1,7 +1,7 @@
 from typing import List
 from repository.job_repository import JobRepository
 from schema.job_application_schema import JobApplication, JobApplicationCreate
-from schema.job_post_schema import JobPost, JobPostCreate, JobPostListData, JobPostListResponse, JobPostPageRequest
+from schema.job_post_schema import JobPost, JobPostCreate, JobPostListData, JobPostListResponse, JobPostPageRequest, JobPostUpdate
 from service.base_service import BaseService
 from uuid import UUID
 
@@ -10,6 +10,7 @@ class JobService(BaseService):
 
     async def get_job_post_page(self, jop_post_page_request: JobPostPageRequest) -> JobPostListResponse:
         res = await JobRepository(session=self.session).get_job_post_page(jop_post_page_request)
+
         post_list = [
             JobPostListData(
                 post_id=i.post_id,
@@ -34,7 +35,7 @@ class JobService(BaseService):
         res = await JobRepository(session=self.session).create_job_post(job_post_create=job_post_create)
         return JobPost.model_validate(res)
 
-    async def update_job_post(self, post_id: str, job_post_create: JobPostCreate) -> JobPost:
+    async def update_job_post(self, post_id: str, job_post_create: JobPostUpdate) -> JobPost:
         res = await JobRepository(session=self.session).update_job_post(post_id=post_id, job_post_create=job_post_create)
         return JobPost.model_validate(res)
 
@@ -42,16 +43,14 @@ class JobService(BaseService):
         res = await JobRepository(session=self.session).delete_job_post(post_id=post_id)
         return res
 
-    async def bookmark_job_post(self, post_id: str, user_id: UUID) -> JobPost:
+    async def bookmark_job_post(self, post_id: UUID, user_id: UUID) -> List[UUID]:
         job_repository = JobRepository(session=self.session)
-        bookmark_post = await job_repository.get_job_post_by_id(post_id=post_id)
-        res = await job_repository.bookmark_job_post(bookmark_post=bookmark_post, user_id=user_id)
-        return JobPost.model_validate(res)
+        res = await job_repository.bookmark_job_post(post_id=post_id, user_id=user_id)
+        return res
 
     async def get_bookmark_job_post(self, user_id=UUID) -> List[JobPost]:
-        # TODO: 필터링 등의 기능도 추가하기.
-        res = await JobRepository(session=self.session).get_bookmark_job_post(user_id=user_id)
-
+        bookmark_list = await JobRepository(session=self.session).get_bookmark_job_post(user_id=user_id)
+        res = await JobRepository(session=self.session).get_bookmark_job_post_list(bookmark_list=bookmark_list)
         return [JobPost.model_validate(i) for i in res]
 
     # ----------------------------------------------------------------------------
