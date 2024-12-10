@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from config.fastapi_config import CustomGunicornApp
-from api.router.test_router import total_test_router
 from api.router.router import api_router
 
 # FastAPI 애플리케이션 정의
