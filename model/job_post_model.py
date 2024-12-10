@@ -16,7 +16,6 @@ from schema.experience_level import ExperienceLevel
 class JobPostModel(Base):
     __tablename__ = "job_post"
     post_id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("user.id", ondelete="CASCADE"))
     url: Mapped[str] = mapped_column(String)
     title: Mapped[str] = mapped_column(String)
     posting_timestamp: Mapped[int] = mapped_column(Integer)
