@@ -1,3 +1,4 @@
+from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
 
@@ -7,6 +8,7 @@ class JobApplication(BaseModel):
 
 
 class JobApplicationCreate(JobApplication):
+    user_id: UUID
     pass
 
 

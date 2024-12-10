@@ -35,6 +35,6 @@ class JobPostModel(Base):
     education_level: Mapped[EducationLevel] = mapped_column(String, nullable=True)
     read_cnt: Mapped[int] = mapped_column(Integer, nullable=True)
     apply_cnt: Mapped[int] = mapped_column(Integer, nullable=True)
-    active: Mapped[bool] = mapped_column(Boolean)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     job_applicaion: Mapped[JobApplicationModel] = relationship("JobApplicationModel")

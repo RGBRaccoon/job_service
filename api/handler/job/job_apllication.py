@@ -10,12 +10,13 @@ from api.handler.user.user_manager import current_active_user
 job_application_router = APIRouter()
 
 
-@job_application_router.post("/apply")
+@job_application_router.post("/apply", summary="채용 지원")
 async def apply(
     job_appication_create: JobApplicationCreate,
     session: AsyncSession = Depends(get_async_session),
     user: UserModel = Depends(current_active_user),
 ):
+    job_appication_create.user_id = user.id
     res = await JobService(session=session).job_apply(job_appication_create=job_appication_create)
     await session.commit()
     return res
@@ -26,7 +27,7 @@ async def apply(
 #     pass
 
 
-@job_application_router.post("/cancel")
+@job_application_router.post("/cancel", summary="채용 지원 취소")
 async def cancel(
     application_id: str,
     session: AsyncSession = Depends(get_async_session),
@@ -37,7 +38,7 @@ async def cancel(
     return res
 
 
-@job_application_router.post("/get/my_apply", response_model=List[JobApplicationResponse])
+@job_application_router.post("/get/my_apply", summary="나의 채용 지원 조회", response_model=List[JobApplicationResponse])
 async def get_my_apply(
     session: AsyncSession = Depends(get_async_session),
     user: UserModel = Depends(),
