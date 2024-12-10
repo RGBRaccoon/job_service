@@ -8,7 +8,7 @@ from model.user_model import UserModel
 from repository.base_repository import BaseRepository
 from schema.job_application_schema import JobApplication, JobApplicationCreate
 from schema.job_post_schema import JobPostCreate, JobPostPageRequest
-from sqlalchemy.orm import contains_eager, joinedload, load_only, selectinload
+from sqlalchemy.orm import selectinload
 
 
 class JobRepository(BaseRepository):

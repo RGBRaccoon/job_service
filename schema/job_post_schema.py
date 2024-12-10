@@ -31,7 +31,6 @@ class JobPost(BaseModel):
     read_cnt: Optional[int] = None
     apply_cnt: Optional[int] = None
     model_config = ConfigDict(from_attributes=True)
-    pass
 
 
 class JobPostCreate(JobPost):
