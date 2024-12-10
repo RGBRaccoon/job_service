@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class SalaryType(Enum):
+class SalaryType(IntEnum):
     COMPANY_POLICY = 0  # 회사내규에 따름
     ABOVE_2600K = 9  # 2,600만원 이상
     ABOVE_2800K = 10  # 2,800만원 이상

@@ -1,6 +1,5 @@
-from datetime import datetime
 import uuid
-from sqlalchemy import String, Boolean, JSON, Integer
+from sqlalchemy import ForeignKey, String, Boolean, JSON, Integer, UUID
 from config.db_config import Base
 from enums.close_type import CloseType
 from enums.educatrion_level import EducationLevel
@@ -16,7 +15,8 @@ from schema.experience_level import ExperienceLevel
 
 class JobPostModel(Base):
     __tablename__ = "job_post"
-    post_id: Mapped[str] = mapped_column(String, primary_key=True, default=uuid.uuid4)
+    post_id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("user.id", ondelete="CASCADE"))
     url: Mapped[str] = mapped_column(String)
     title: Mapped[str] = mapped_column(String)
     posting_timestamp: Mapped[int] = mapped_column(Integer)
@@ -32,7 +32,7 @@ class JobPostModel(Base):
     salary: Mapped[SalaryType] = mapped_column(Integer)
     experience_min: Mapped[int] = mapped_column(Integer, nullable=True)
     experience_max: Mapped[int] = mapped_column(Integer, nullable=True)
-    education_level: Mapped[EducationLevel] = mapped_column(String, nullable=True)
+    education_level: Mapped[EducationLevel] = mapped_column(Integer, nullable=True)
     read_cnt: Mapped[int] = mapped_column(Integer, nullable=True)
     apply_cnt: Mapped[int] = mapped_column(Integer, nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, default=True)

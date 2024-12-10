@@ -27,8 +27,8 @@ class JobRepository(BaseRepository):
         return res
 
     async def create_job_post(self, job_post_create: JobPostCreate) -> JobPostModel:
-        job_post = JobPostModel(job_post_create.model_dump())
-        await self.session.add(job_post)
+        job_post = JobPostModel(**job_post_create.model_dump())
+        self.session.add(job_post)
         await self.session.flush()
         return job_post
 

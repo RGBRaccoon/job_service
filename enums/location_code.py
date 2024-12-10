@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class FirstLocationCode(Enum):
+class FirstLocationCode(IntEnum):
     SEOUL = 101000  # 서울
     GYEONGGI = 102000  # 경기
     GWANGJU = 103000  # 광주
@@ -30,10 +30,7 @@ class FirstLocationCode(Enum):
     OTHER_OVERSEAS = 280000  # 기타해외
 
 
-from enum import Enum
-
-
-class SecondLocationCode(Enum):
+class SecondLocationCode(IntEnum):
     SEOUL_ALL = 101000  # 서울전체
     GANGNAM = 101010  # 강남구
     GANGDONG = 101020  # 강동구

@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class EducationLevel(Enum):
+class EducationLevel(IntEnum):
     NO_REQUIREMENT = 0  # 학력무관
     HIGH_SCHOOL = 1  # 고등학교졸업
     COLLEGE_2_3_YEAR = 2  # 대학졸업(2,3년)

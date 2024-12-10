@@ -34,6 +34,7 @@ class JobPost(BaseModel):
 
 
 class JobPostCreate(JobPost):
+    model_config = ConfigDict(from_attributes=True)
     pass
 
 

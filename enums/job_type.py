@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import IntEnum
 
 
-class JobType(Enum):
+class JobType(IntEnum):
     FULL_TIME = 1  # 정규직
     CONTRACT = 2  # 계약직
     MILITARY_SPECIAL = 3  # 병역특례
