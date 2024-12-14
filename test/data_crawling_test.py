@@ -1,83 +1,95 @@
-from asyncio import sleep
-import os
-from unittest import TestCase
-import chromedriver_autoinstaller
+import json
 import requests
-import re
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.chrome.options import Options
+from urllib.parse import quote
 import time
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
-# URL = "https://www.saramin.co.kr/zf_user/jobs/list/domestic"
-
-
-# chrome_options = Options()
-# chrome_options.add_argument("--headless")  # GUI 없이 실행 (선택)
-# chrome_options.add_argument("--no-sandbox")
-# chrome_options.add_argument("--disable-dev-shm-usage")
-
-# # Chromedriver 서비스 생성
-# service = Service()
-# driver = webdriver.Chrome(service=service, options=chrome_options)
-
-# # 테스트: Google 열기
-# driver.get("https://www.google.com")
-# print(driver.title)
-
-# # 드라이버 종료
-# driver.quit()
+from model.job_post_model import JobPostModel
+from schema.company import Company
+from schema.experience_level import ExperienceLevel
+from schema.job_post_schema import JobPost, JobPostCreate
 
 
-def test_crawling():
-    # Multi Process PID
-    url = "https://www.saramin.co.kr/zf_user/jobs/list/domestic?page=1&page_count=100"
-    headers = {"User-Agent": "Mozilla/5.0"}  # 브라우저처럼 보이기 위한 헤더
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    # Step 2: BeautifulSoup로 HTML 파싱
-    soup = BeautifulSoup(response.text, "html.parser")
-    # Step 3: 채용 객체 리스트 추출
-    content = soup.find("ul", {"class": "list_product list_grand"})
-    job_list = []
-    print(content)
-    job_items = content.find_all("li", {"class": "item"})
-    job_list.extend(job_items)  # 각 채용 객체를 리스트에 추가
-    # 결과 확인
-    print(f"채용 객체 수: {len(job_list)}")
+def create_job_post(data: dict) -> JobPostCreate:
+    print(data)
+    job_post = JobPostCreate(
+        url=data["url"],
+        title=data["position"]["title"],
+        posting_timestamp=data["posting-timestamp"],
+        modification_timestamp=data["modification-timestamp"],
+        opening_timestamp=data["opening-timestamp"],
+        expiration_timestamp=data["expiration-timestamp"],
+        close_type=data["close-type"]["code"],
+        company=Company(name=data["company"]["detail"]["name"], href=data["company"]["detail"]["href"]),
+        location=data["position"]["location"]["code"],
+        job_type=data["position"]["job-type"]["code"],
+        job_code=data["position"]["job-code"]["code"],
+        experience_level=ExperienceLevel(
+            code=data["position"]["experience-level"]["code"],
+            min=data["position"]["experience-level"]["min"],
+            max=data["position"]["experience-level"]["max"],
+        ),
+        salary=data["salary"]["code"],
+        education_level=data["position"]["required-education-level"]["code"],
+    )
+
+    return job_post
 
 
-test_crawling()
+def main():
+    access_key = "Pc6PML7bb5VNNXv1k52ucuJ0cEHYU8vjds60fLOmobmsex7MTX3Oi"  # 발급받은 accessKey
+    max_retries = 1  # 최대 재시도 횟수
+    retry_count = 0
 
-# soup = BeautifulSoup(html, "html.parser")
-# link = soup.find("a")["href"] if soup.find("a") else "링크 없음"
+    while retry_count < max_retries:
+        try:
+            # 검색 키워드 URL 인코딩
+            text = quote("")
+            api_url = f"https://oapi.saramin.co.kr/job-search?access-key=Pc6PML7bb5VNNXv1k52ucuJ0cEHYU8vjds60fLOmobmsex7MTX3Oi&job_type=&edu_lv=&count=1"
 
-# # 이미지 URL
-# logo = soup.find("img")["src"] if soup.find("img") else "이미지 없음"
+            # GET 요청
+            headers = {"Accept": "application/json"}
+            response = requests.get(api_url, headers=headers)
 
-# # 제목
-# title = soup.find("strong", {"class": "tit"}).get_text(strip=True) if soup.find("strong", {"class": "tit"}) else "제목 없음"
+            # 응답 처리
+            if response.status_code == 200:
+                # 정상 호출
+                # print(response.json())
+                data_parts = []  # 데이터를 저장할 임시 리스트
 
-# # 회사명
-# company = soup.find("span", {"class": "corp"}).get_text(strip=True) if soup.find("span", {"class": "corp"}) else "회사 없음"
+                for i in response:
+                    data_parts.append(i)  # 데이터를 리스트에 추가
 
-# # 지역
-# location = (
-#     soup.find("li", {"class": "company_local ellipsis"}).get_text(strip=True)
-#     if soup.find("li", {"class": "company_local ellipsis"})
-#     else "지역 없음"
-# )
+                # 리스트의 모든 bytes를 결합
+                data = b"".join(data_parts)
 
-# # 경력
-# experience = soup.find_all("li")[1].get_text(strip=True) if len(soup.find_all("li")) > 1 else "경력 없음"
+                json_data = json.loads(data.decode("utf-8"))
+                # print(type(json_data))
+                # print(json_data)
+                # print(json_data["jobs"]["job"][0]["url"])
+                job_list = []
+                for i in json_data["jobs"]["job"]:
+                    job_post = create_job_post(i)
+                    job_list.append(job_post)
 
-# # 학력
-# education = soup.find_all("li")[2].get_text(strip=True) if len(soup.find_all("li")) > 2 else "학력 없음"
+                # job_post = JobPost.model_validate(json_data)
+                # print(job_post)
+                # data = JobPostModel(job_post)
+                # print(data)
+                break
+            else:
+                # 에러 발생
+                print(f"Error: {response.status_code}", response.text)
+                retry_count += 1
+                time.sleep(2)  # 재시도 전 대기 시간
 
-# # 마감일
-# deadline = soup.find("span", {"class": "date"}).get_text(strip=True) if soup.find("span", {"class": "date"}) else "마감일 없음"
+        except Exception as e:
+            print(f"Exception occurred: {e}")
+            retry_count += 1
+            time.sleep(2)  # 재시도 전 대기 시간
+
+        if retry_count == max_retries:
+            print("Max retries reached. Request failed.")
+
+
+if __name__ == "__main__":
+    main()

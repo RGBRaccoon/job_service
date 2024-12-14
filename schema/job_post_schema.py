@@ -21,20 +21,20 @@ class JobPost(BaseModel):
     expiration_timestamp: int
     close_type: Optional[CloseType] = None
     company: Optional[Company] = None
-    location: Optional[SecondLocationCode] = None
+    location: Optional[str] = None
     job_type: Optional[JobType] = None
-    job_code: int
+    job_code: Optional[str] = None
     experience_level: Optional[ExperienceLevel] = None
     salary: Optional[SalaryType] = None
-    experience_min: Optional[int] = None
-    experience_max: Optional[int] = None
     education_level: Optional[EducationLevel] = None
-    read_cnt: Optional[int] = None
-    apply_cnt: Optional[int] = None
+    read_cnt: int
+    apply_cnt: int
     model_config = ConfigDict(from_attributes=True)
 
 
 class JobPostCreate(JobPost):
+    read_cnt: int = 0
+    apply_cnt: int = 0
     model_config = ConfigDict(from_attributes=True)
 
 
