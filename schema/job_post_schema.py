@@ -4,7 +4,6 @@ from pydantic import BaseModel, ConfigDict
 
 from enums.close_type import CloseType
 from enums.educatrion_level import EducationLevel
-from enums.employ_type import EmploymentType
 from enums.job_type import JobType
 from enums.location_code import SecondLocationCode
 from enums.salary_type import SalaryType
@@ -22,7 +21,7 @@ class JobPost(BaseModel):
     close_type: Optional[CloseType] = None
     company: Optional[Company] = None
     location: Optional[str] = None
-    job_type: Optional[JobType] = None
+    job_type: Optional[str] = None
     job_code: Optional[str] = None
     experience_level: Optional[ExperienceLevel] = None
     salary: Optional[SalaryType] = None
@@ -83,6 +82,5 @@ class JobPostPageRequest(BaseModel):
     key_word: Optional[str] = None
     page: int = 0
     education_level: Optional[EducationLevel] = None
-    employ_type: Optional[EmploymentType] = None
     region: List[SecondLocationCode]
     salary: Optional[SalaryType] = None

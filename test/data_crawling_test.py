@@ -1,14 +1,17 @@
+import asyncio
 import json
 import requests
-from urllib.parse import quote
 import time
+from config.db_config import async_session
 
-from model.job_post_model import JobPostModel
 from schema.company import Company
 from schema.experience_level import ExperienceLevel
-from schema.job_post_schema import JobPost, JobPostCreate
+from schema.job_post_schema import JobPostCreate
+from service.job_service import JobService
 
 
+# 데이터 수집부
+# 데이터 수집은 인터넷 크롤링 대신 api키를 이용하여 서버에 요청하는 방식으로 이루어짐.
 def create_job_post(data: dict) -> JobPostCreate:
     print(data)
     job_post = JobPostCreate(
@@ -35,16 +38,15 @@ def create_job_post(data: dict) -> JobPostCreate:
     return job_post
 
 
-def main():
-    access_key = "Pc6PML7bb5VNNXv1k52ucuJ0cEHYU8vjds60fLOmobmsex7MTX3Oi"  # 발급받은 accessKey
+async def main():
+    access_key = "Access key"  # 발급받은 accessKey 키유출을 막기위해 커밋에는 제외외
     max_retries = 1  # 최대 재시도 횟수
     retry_count = 0
 
     while retry_count < max_retries:
         try:
             # 검색 키워드 URL 인코딩
-            text = quote("")
-            api_url = f"https://oapi.saramin.co.kr/job-search?access-key=Pc6PML7bb5VNNXv1k52ucuJ0cEHYU8vjds60fLOmobmsex7MTX3Oi&job_type=&edu_lv=&count=1"
+            api_url = f"https://oapi.saramin.co.kr/job-search?access-key={access_key}&job_type=&edu_lv=&count=150"
 
             # GET 요청
             headers = {"Accept": "application/json"}
@@ -63,18 +65,13 @@ def main():
                 data = b"".join(data_parts)
 
                 json_data = json.loads(data.decode("utf-8"))
-                # print(type(json_data))
-                # print(json_data)
-                # print(json_data["jobs"]["job"][0]["url"])
-                job_list = []
-                for i in json_data["jobs"]["job"]:
-                    job_post = create_job_post(i)
-                    job_list.append(job_post)
 
-                # job_post = JobPost.model_validate(json_data)
-                # print(job_post)
-                # data = JobPostModel(job_post)
-                # print(data)
+                job_list = [create_job_post(i) for i in json_data["jobs"]["job"]]
+
+                async with async_session() as session:
+                    for i in job_list:
+                        await JobService(session=session).create_job_post(job_post_create=i)
+                    await session.commit()
                 break
             else:
                 # 에러 발생
@@ -91,5 +88,4 @@ def main():
             print("Max retries reached. Request failed.")
 
 
-if __name__ == "__main__":
-    main()
+asyncio.run(main())

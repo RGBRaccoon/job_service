@@ -3,9 +3,7 @@ from sqlalchemy import String, Boolean, JSON, Integer, UUID
 from config.db_config import Base
 from enums.close_type import CloseType
 from enums.educatrion_level import EducationLevel
-from enums.employ_type import EmploymentType
 from enums.job_type import JobType
-from enums.location_code import SecondLocationCode
 from enums.salary_type import SalaryType
 from model.job_application_model import JobApplicationModel
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -26,9 +24,8 @@ class JobPostModel(Base):
     close_type: Mapped[CloseType] = mapped_column(Integer)
     company: Mapped[Company] = mapped_column(JSON)
     location: Mapped[str] = mapped_column(String)
-    job_type: Mapped[JobType] = mapped_column(Integer)
+    job_type: Mapped[str] = mapped_column(String)
     job_code: Mapped[str] = mapped_column(String)
-    employ_type: Mapped[EmploymentType] = mapped_column(Integer)
     experience_level: Mapped[ExperienceLevel] = mapped_column(JSON)
     salary: Mapped[SalaryType] = mapped_column(Integer)
     experience_min: Mapped[int] = mapped_column(Integer, nullable=True)

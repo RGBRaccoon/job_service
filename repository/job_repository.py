@@ -21,8 +21,6 @@ class JobRepository(BaseRepository):
             stmt = stmt.where(JobPostModel.title.ilike(f"%{jop_post_page_request.key_word}%"))
         if jop_post_page_request.education_level:
             stmt = stmt.where(JobPostModel.education_level == jop_post_page_request.education_level)
-        if jop_post_page_request.employ_type:
-            stmt = stmt.where(JobPostModel.employ_type == jop_post_page_request.employ_type)
         if jop_post_page_request.region or jop_post_page_request.region != []:
             stmt = stmt.where(JobPostModel.location.in_(jop_post_page_request.region))
         if jop_post_page_request.salary:
