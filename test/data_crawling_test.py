@@ -1,12 +1,17 @@
 import asyncio
 import csv
 import json
+import uuid
 import requests
 import time
-
+from sqlalchemy import inspect
 from sqlalchemy import select
 from config.db_config import async_session
 
+from enums.close_type import CloseType
+from enums.educatrion_level import EducationLevel
+from enums.job_type import JobType
+from enums.salary_type import SalaryType
 from model.job_post_model import JobPostModel
 from schema.company import Company
 from schema.experience_level import ExperienceLevel
@@ -41,6 +46,36 @@ def create_job_post(data: dict) -> JobPostCreate:
 
     return job_post
 
+def transform_value(column_type, value):
+    """
+    데이터 타입에 맞게 값을 변환합니다.
+    """
+    if value is None or value == "":
+        return None
+
+    try:
+        if column_type == uuid.UUID:
+            return uuid.UUID(value)
+        elif column_type == int:
+            return int(value)
+        elif column_type == bool:
+            return str(value).strip().lower() in ("true", "1", "yes")
+        elif column_type == CloseType:
+            return CloseType(int(value))
+        elif column_type == EducationLevel:
+            return EducationLevel(int(value))
+        elif column_type == JobType:
+            return JobType(int(value))
+        elif column_type == SalaryType:
+            return SalaryType(int(value))
+        elif column_type == dict:
+            return eval(value)  # JSON 데이터를 dict로 변환
+        elif column_type == str:
+            return str(value)
+        else:
+            return value
+    except (ValueError, TypeError):
+        return None
 
 async def main():
     access_key = "Access key"  # 발급받은 accessKey 키유출을 막기위해 커밋에는 제외외
@@ -106,19 +141,29 @@ async def export_data():
             for row in results:
                 writer.writerow([getattr(row, column.name) for column in JobPostModel.__table__.columns])
 
-
 async def import_data():
-    async with async_session() as session:
-        # CSV 파일 읽기
-        with open("job_post.csv", "r") as csvfile:
-            reader = csv.DictReader(csvfile)  # 헤더를 기반으로 딕셔너리로 읽음
+    with open("job_post.csv", "r") as csvfile:
+        reader = csv.DictReader(csvfile)  # CSV 헤더를 기반으로 딕셔너리로 읽음
 
-            data_list = [JobPostModel(**i) for i in reader]
-            print(type(data_list[0]))
-            print(data_list[0].active)
-            session.add(data_list)
-            await session.commit()
-        print("Data imported successfully!")
+        # SQLAlchemy 모델의 메타데이터를 기반으로 컬럼 타입 매핑
+        mapper = inspect(JobPostModel)
+        column_types = {column.name: column.type.python_type for column in mapper.columns}
+
+        data_list = []
+        for row in reader:
+            transformed_row = {}
+
+            for column, value in row.items():
+                if column in column_types:
+                    transformed_row[column] = transform_value(column_types[column], value)
+
+            # JobPostModel 객체 생성
+            data_list.append(JobPostModel(**transformed_row))
+
+    # 데이터베이스에 삽입
+    async with async_session() as session:
+        session.add_all(data_list)
+        await session.commit()
 
 
 asyncio.run(import_data())
