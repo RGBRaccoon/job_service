@@ -1,15 +1,13 @@
 from typing import List
 from uuid import UUID
 
-from psycopg2 import DatabaseError
-from sqlalchemy import select, update
+from sqlalchemy import or_, select, update
 from model.job_application_model import JobApplicationModel
 from model.job_post_model import JobPostModel
 from model.user_model import UserModel
 from repository.base_repository import BaseRepository
-from schema.job_application_schema import JobApplication, JobApplicationCreate
+from schema.job_application_schema import JobApplicationCreate
 from schema.job_post_schema import JobPostCreate, JobPostPageRequest, JobPostUpdate
-from sqlalchemy.orm import selectinload
 
 
 class JobRepository(BaseRepository):
@@ -21,10 +19,8 @@ class JobRepository(BaseRepository):
             stmt = stmt.where(JobPostModel.title.ilike(f"%{jop_post_page_request.key_word}%"))
         if jop_post_page_request.education_level:
             stmt = stmt.where(JobPostModel.education_level == jop_post_page_request.education_level)
-        if jop_post_page_request.employ_type:
-            stmt = stmt.where(JobPostModel.employ_type == jop_post_page_request.employ_type)
         if jop_post_page_request.region or jop_post_page_request.region != []:
-            stmt = stmt.where(JobPostModel.location.in_(jop_post_page_request.region))
+            stmt = stmt.where(or_(*(JobPostModel.location.like(f"%{region}%") for region in jop_post_page_request.region)))
         if jop_post_page_request.salary:
             stmt = stmt.where(JobPostModel.salary >= jop_post_page_request.salary)
 
