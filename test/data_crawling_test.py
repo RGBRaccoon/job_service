@@ -1,9 +1,13 @@
 import asyncio
+import csv
 import json
 import requests
 import time
+
+from sqlalchemy import select
 from config.db_config import async_session
 
+from model.job_post_model import JobPostModel
 from schema.company import Company
 from schema.experience_level import ExperienceLevel
 from schema.job_post_schema import JobPostCreate
@@ -88,4 +92,33 @@ async def main():
             print("Max retries reached. Request failed.")
 
 
-asyncio.run(main())
+async def export_data():
+    async with async_session() as session:
+        stmt = select(JobPostModel)
+        results = await session.execute(stmt)
+        results = results.scalars().all()
+
+        with open("job_post.csv", "w", newline="") as csvfile:
+            writer = csv.writer(csvfile)
+            # 헤더 작성
+            writer.writerow([column.name for column in JobPostModel.__table__.columns])
+            # 데이터 작성
+            for row in results:
+                writer.writerow([getattr(row, column.name) for column in JobPostModel.__table__.columns])
+
+
+async def import_data():
+    async with async_session() as session:
+        # CSV 파일 읽기
+        with open("job_post.csv", "r") as csvfile:
+            reader = csv.DictReader(csvfile)  # 헤더를 기반으로 딕셔너리로 읽음
+
+            data_list = [JobPostModel(**i) for i in reader]
+            print(type(data_list[0]))
+            print(data_list[0].active)
+            session.add(data_list)
+            await session.commit()
+        print("Data imported successfully!")
+
+
+asyncio.run(import_data())

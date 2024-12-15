@@ -69,7 +69,7 @@ class JobPostListData(BaseModel):
     title: str
     expiration_timestamp: int
     company: Optional[Company] = None
-    location: Optional[SecondLocationCode] = None
+    location: Optional[str] = None
     experience_level: Optional[ExperienceLevel] = None
 
 
@@ -82,5 +82,5 @@ class JobPostPageRequest(BaseModel):
     key_word: Optional[str] = None
     page: int = 0
     education_level: Optional[EducationLevel] = None
-    region: List[SecondLocationCode]
+    region: List[str]
     salary: Optional[SalaryType] = None
